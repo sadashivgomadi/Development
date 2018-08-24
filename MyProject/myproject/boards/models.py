@@ -10,6 +10,7 @@ class Board(models.Model):
   '''  def __str__(self):
         return self.name
 '''
+#this is a demo on commit
 
 class Topic(models.Model):
     subject = models.CharField(max_length=255)
