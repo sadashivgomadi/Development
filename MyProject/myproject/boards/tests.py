@@ -51,7 +51,7 @@ class BoardTopicsTests(TestCase):
     def test_board_topics_url_resolves_board_topics_view(self):
         view = resolve('/boards/2/')
         self.assertEquals(view.func, board_topics)
-
+#Tests for New Topic Page
 class NewTopicTests(TestCase):
     def setUp(self):
         Board.objects.create(name='Django', description='Django board.')
