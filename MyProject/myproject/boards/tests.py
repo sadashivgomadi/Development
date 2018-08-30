@@ -2,8 +2,7 @@ from django.test import TestCase
 
 # Create your tests here.
 
-from django.urls import reverse
-from django.urls import resolve
+from django.urls import reverse,resolve
 from .views import home, board_topics, new_topic
 from .models import Board, Topic, Post
 from django.contrib.auth.models import User
@@ -16,13 +15,13 @@ class HomeTests(TestCase):
         self.response = self.client.get(url)
 
     def test_home_view_status_code(self):
-        self.assertEquals(self.response.status_code, 200)  #check if the status code matches with 200, else throw an exception
-            #we can test if Django returned the correct view function for the requested URL with the below function
+        self.assertEquals(self.response.status_code, 200)  # check if the status code matches with 200, else throw an exception
+            # we can test if Django returned the correct view function for the requested URL with the below function
 
     def test_home_url_resolves_home_view(self):
         view = resolve('/')  # '/' is the root url.
         self.assertEquals(view.func, home)
-#This test will make sure the URL / which is the root URL, is returning the home view
+# This test will make sure the URL / which is the root URL, is returning the home view
 
     def test_home_view_contains_links_to_topics_page(self):
         board_topics_url = reverse('board_topics', kwargs={'pk': self.board.pk})
@@ -64,7 +63,7 @@ class BoardTopicsTests(TestCase):
         self.assertContains(response, 'href="{0}"'.format(new_topic_url))
 
 
-#Tests for New Topic Page
+# Tests for New Topic Page
 class NewTopicTests(TestCase):
     def setUp(self):
         Board.objects.create(name='Django', description='Django board.')
@@ -89,48 +88,49 @@ class NewTopicTests(TestCase):
         response = self.client.get(new_topic_url)
         self.assertContains(response, 'href="{0}"'.format(board_topics_url))
 
+
 class NewTopicTests(TestCase):
     def setUp(self):
-        Board.objects.create(name='Django',description='Django Board')
-        User.objects.create_user(username='john', email='john@doe.com',password='123')
+        Board.objects.create(name='Django', description='Django board.')
+        User.objects.create_user(username='john', email='john@doe.com', password='123')  # <- included this line here
 
+    # ...
 
     def test_csrf(self):
-        url = reverse('new_topic',kwargs={'pk':1})
+        url = reverse('new_topic', kwargs={'pk': 1})
         response = self.client.get(url)
         self.assertContains(response, 'csrfmiddlewaretoken')
 
     def test_new_topic_valid_post_data(self):
-        url = reverse('new_topic', kwargs={'pk':1})
+        url = reverse('new_topic', kwargs={'pk': 1})
         data = {
-            'subject' : 'Test title',
-            'message' : 'Lorem ipsum dolor sit amet'
+            'subject': 'Test title',
+            'message': 'Lorem ipsum dolor sit amet'
         }
-        response = self.client.post(url,data)
+        response = self.client.post(url, data)
         self.assertTrue(Topic.objects.exists())
         self.assertTrue(Post.objects.exists())
 
     def test_new_topic_invalid_post_data(self):
         '''
         Invalid post data should not redirect
-        The expected behaviour is to show the form again with validation errors
+        The expected behavior is to show the form again with validation errors
         '''
-        url = reverse('new_topic', kwargs={'pk':1})
+        url = reverse('new_topic', kwargs={'pk': 1})
         response = self.client.post(url, {})
         self.assertEquals(response.status_code, 200)
 
     def test_new_topic_invalid_post_data_empty_fields(self):
         '''
         Invalid post data should not redirect
-        The expected behaviour is to show the form again with validation errors
+        The expected behavior is to show the form again with validation errors
         '''
         url = reverse('new_topic', kwargs={'pk': 1})
         data = {
-            'subject' : '',
-            'message' : ''
-         }
-        response = self.client.post(url,data)
+            'subject': '',
+            'message': ''
+        }
+        response = self.client.post(url, data)
         self.assertEquals(response.status_code, 200)
         self.assertFalse(Topic.objects.exists())
         self.assertFalse(Post.objects.exists())
-
